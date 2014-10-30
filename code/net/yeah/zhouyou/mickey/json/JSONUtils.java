@@ -5,10 +5,6 @@ import java.util.Map;
 
 public class JSONUtils {
 
-	static boolean isBlank(char c) {
-		return c == ' ' || c == '\n' || c == '\r' || c == '\t';
-	}
-
 	/**
 	 * 返回一个JSONObject或JSONArray类型的对象。
 	 */
@@ -94,24 +90,46 @@ public class JSONUtils {
 			return parseString(ca);
 		case '[':
 			return new JSONArray(ca);
-		case 't':
-			if (ca.moveOneStep() == 'r' && ca.moveOneStep() == 'u' && ca.moveOneStep() == 'e') {
+		case 't': {
+			ca.moveOneStep();
+			char c0 = ca.first();
+			ca.moveOneStep();
+			char c1 = ca.first();
+			ca.moveOneStep();
+			char c2 = ca.first();
+			if (c0 == 'r' && c1 == 'u' && c2 == 'e') {
 				ca.moveOneStep();
 				return Boolean.TRUE;
 			}
+		}
 			break;
-		case 'f':
-			if (ca.moveOneStep() == 'a' && ca.moveOneStep() == 'l' && ca.moveOneStep() == 's'
-					&& ca.moveOneStep() == 'e') {
+		case 'f': {
+			ca.moveOneStep();
+			char c0 = ca.first();
+			ca.moveOneStep();
+			char c1 = ca.first();
+			ca.moveOneStep();
+			char c2 = ca.first();
+			ca.moveOneStep();
+			char c3 = ca.first();
+			if (c0 == 'a' && c1 == 'l' && c2 == 's' && c3 == 'e') {
 				ca.moveOneStep();
 				return Boolean.FALSE;
 			}
+		}
 			break;
-		case 'n':
-			if (ca.moveOneStep() == 'u' && ca.moveOneStep() == 'l' && ca.moveOneStep() == 'l') {
+		case 'n': {
+			ca.moveOneStep();
+			char c0 = ca.first();
+			ca.moveOneStep();
+			char c1 = ca.first();
+			ca.moveOneStep();
+			char c2 = ca.first();
+			if (c0 == 'u' && c1 == 'l' && c2 == 'l') {
 				ca.moveOneStep();
 				return null;
 			}
+		}
 			break;
 		default:
 			return parseNumber(ca);
@@ -127,7 +145,8 @@ public class JSONUtils {
 	static char parseChar(CharacterArray ca) {
 		char c = ca.first();
 		if (c == '\\') {
-			c = ca.moveOneStep();
+			ca.moveOneStep();
+			c = ca.first();
 			switch (c) {
 			case '"':
 				c = '"';
@@ -154,9 +173,15 @@ public class JSONUtils {
 				c = '\t';
 				break;
 			case 'u':
-				c = (char) Integer.parseInt(
-						String.valueOf(new char[] { ca.moveOneStep(), ca.moveOneStep(), ca.moveOneStep(),
-								ca.moveOneStep() }), 16);
+				ca.moveOneStep();
+				char c0 = ca.first();
+				ca.moveOneStep();
+				char c1 = ca.first();
+				ca.moveOneStep();
+				char c2 = ca.first();
+				ca.moveOneStep();
+				char c3 = ca.first();
+				c = (char) Integer.parseInt(String.valueOf(new char[] { c0, c1, c2, c3 }), 16);
 				break;
 			default:
 				throw new RuntimeException();
@@ -179,7 +204,8 @@ public class JSONUtils {
 		char c = ca.first();
 		if (c == 'e' || c == 'E') {
 			sb.append('e');
-			c = ca.moveOneStep();
+			ca.moveOneStep();
+			c = ca.first();
 			if (c == '+' || c == '-') {
 				sb.append(c);
 				ca.moveOneStep();
@@ -210,7 +236,8 @@ public class JSONUtils {
 		char c = ca.first();
 		while (c >= '0' && c <= '9') {
 			sb.append(c);
-			c = ca.moveOneStep();
+			ca.moveOneStep();
+			c = ca.first();
 		}
 		if (sb.length() == 0)
 			throw new RuntimeException();

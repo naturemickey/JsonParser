@@ -21,17 +21,18 @@ public class CharacterArray {
 		return idx == charArray.length;
 	}
 
-	public char moveOneStep() {
+	public void moveOneStep() {
 		++idx;
-		if (idx < charArray.length)
-			return charArray[idx];
-		return (char)-1;
 	}
 
 	public void moveUntilNotBlank() {
 		do {
-			if (!JSONUtils.isBlank(charArray[idx]))
+			if (!isBlank(charArray[idx]))
 				return;
 		} while (++idx < charArray.length);
+	}
+
+	private static boolean isBlank(char c) {
+		return c == ' ' || c == '\n' || c == '\r' || c == '\t';
 	}
 }
