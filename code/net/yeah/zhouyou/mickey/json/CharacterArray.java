@@ -21,8 +21,8 @@ public class CharacterArray {
 		return idx == charArray.length;
 	}
 
-	public void moveOneStep() {
-		++idx;
+	public char moveOneStep() {
+		return charArray[++idx];
 	}
 
 	public void moveUntilNotBlank() {
@@ -30,5 +30,11 @@ public class CharacterArray {
 			if (!JSONUtils.isBlank(charArray[idx]))
 				return;
 		} while (++idx < charArray.length);
+	}
+
+	public char charAt(int idx) {
+		if (idx < 0)
+			throw new RuntimeException();
+		return charArray[this.idx + idx];
 	}
 }

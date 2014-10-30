@@ -40,6 +40,16 @@ public class JSONUtils {
 	}
 
 	static void parsePair(CharacterArray ca, Map<String, Object> fields) {
+		ca.moveUntilNotBlank();
+		String fieldName = parseString(ca);
+		ca.moveUntilNotBlank();
+		char c = ca.first();
+		if (c != ':')
+			throw new RuntimeException();
+		ca.moveOneStep();
+		ca.moveUntilNotBlank();
+		Object value = parseValue(ca);
+		fields.put(fieldName, value);
 	}
 
 	static void parseElements(CharacterArray ca, List<Object> els) {
@@ -52,16 +62,104 @@ public class JSONUtils {
 		}
 	}
 
-	static Object parseValue(CharacterArray ca) {
-		return null;
+	static String parseString(CharacterArray ca) {
+		if (ca.first() != '"')
+			throw new RuntimeException();
+		ca.moveOneStep();
+		if (ca.first() == '"')
+			return "";
+		String chars = parseChars(ca);
+		if (ca.first() != '"')
+			throw new RuntimeException();
+		ca.moveOneStep();
+		return chars;
 	}
 
-	static String parseString(CharacterArray ca) {
-		return null;
+	static String parseChars(CharacterArray ca) {
+		StringBuilder sb = new StringBuilder();
+		while (ca.first() != '"') {
+			sb.append(parseChar(ca));
+		}
+		if (ca.first() != '"')
+			throw new RuntimeException();
+		ca.moveOneStep();
+		return sb.toString();
+	}
+
+	static Object parseValue(CharacterArray ca) {
+		ca.moveUntilNotBlank();
+		switch (ca.first()) {
+		case '{':
+			return new JSONObject(ca);
+		case '"':
+			return parseString(ca);
+		case '[':
+			return new JSONArray(ca);
+		case 't':
+			if (ca.charAt(1) == 'u' && ca.charAt(2) == 'r' && ca.charAt(3) == 'e')
+				return Boolean.TRUE;
+			break;
+		case 'f':
+			if (ca.charAt(1) == 'a' && ca.charAt(2) == 'l' && ca.charAt(3) == 's' && ca.charAt(4) == 'e')
+				return Boolean.FALSE;
+			break;
+		case 'n':
+			if (ca.charAt(1) == 'u' && ca.charAt(2) == 'l' && ca.charAt(3) == 'l')
+				return null;
+			break;
+		default:
+			return parseNumber(ca);
+		}
+		throw new RuntimeException();
+	}
+
+	static boolean isControlCharacter(char c) {
+		// TODO 不知道什么是 control character
+		return false;
 	}
 
 	static char parseChar(CharacterArray ca) {
-		return ' ';
+		char c = ca.first();
+		if (c == '\\') {
+			c = ca.moveOneStep();
+			switch (c) {
+			case '"':
+				c = '"';
+				break;
+			case '\\':
+				c = '\\';
+				break;
+			case '/':
+				c = '/';
+				break;
+			case 'b':
+				c = '\b';
+				break;
+			case 'f':
+				c = '\f';
+				break;
+			case 'n':
+				c = '\n';
+				break;
+			case 'r':
+				c = '\r';
+				break;
+			case 't':
+				c = '\t';
+				break;
+			case 'u':
+				c = (char) Integer.parseInt(
+						String.valueOf(new char[] { ca.moveOneStep(), ca.moveOneStep(), ca.moveOneStep(),
+								ca.moveOneStep() }), 16);
+				break;
+			default:
+				throw new RuntimeException();
+			}
+		} else if (isControlCharacter(c)) {
+			throw new RuntimeException();
+		}
+		ca.moveOneStep();
+		return c;
 	}
 
 	static Number parseNumber(CharacterArray ca) {
