@@ -18,5 +18,11 @@ public class JSONArray {
 		if (ca.first() != ']') {
 			throw new RuntimeException();
 		}
+		ca.moveOneStep();
+	}
+
+	@Override
+	public String toString() {
+		return this.values.toString();
 	}
 }

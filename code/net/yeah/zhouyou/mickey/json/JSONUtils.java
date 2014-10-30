@@ -82,7 +82,6 @@ public class JSONUtils {
 		}
 		if (ca.first() != '"')
 			throw new RuntimeException();
-		ca.moveOneStep();
 		return sb.toString();
 	}
 
@@ -96,16 +95,23 @@ public class JSONUtils {
 		case '[':
 			return new JSONArray(ca);
 		case 't':
-			if (ca.charAt(1) == 'u' && ca.charAt(2) == 'r' && ca.charAt(3) == 'e')
+			if (ca.moveOneStep() == 'r' && ca.moveOneStep() == 'u' && ca.moveOneStep() == 'e') {
+				ca.moveOneStep();
 				return Boolean.TRUE;
+			}
 			break;
 		case 'f':
-			if (ca.charAt(1) == 'a' && ca.charAt(2) == 'l' && ca.charAt(3) == 's' && ca.charAt(4) == 'e')
+			if (ca.moveOneStep() == 'a' && ca.moveOneStep() == 'l' && ca.moveOneStep() == 's'
+					&& ca.moveOneStep() == 'e') {
+				ca.moveOneStep();
 				return Boolean.FALSE;
+			}
 			break;
 		case 'n':
-			if (ca.charAt(1) == 'u' && ca.charAt(2) == 'l' && ca.charAt(3) == 'l')
+			if (ca.moveOneStep() == 'u' && ca.moveOneStep() == 'l' && ca.moveOneStep() == 'l') {
+				ca.moveOneStep();
 				return null;
+			}
 			break;
 		default:
 			return parseNumber(ca);
@@ -163,6 +169,51 @@ public class JSONUtils {
 	}
 
 	static Number parseNumber(CharacterArray ca) {
-		return null;
+		ca.moveUntilNotBlank();
+		StringBuilder sb = new StringBuilder();
+		sb.append(parseInt(ca));
+		if (ca.first() == '.') {
+			ca.moveOneStep();
+			sb.append('.').append(parseDigits(ca));
+		}
+		char c = ca.first();
+		if (c == 'e' || c == 'E') {
+			sb.append('e');
+			c = ca.moveOneStep();
+			if (c == '+' || c == '-') {
+				sb.append(c);
+				ca.moveOneStep();
+			}
+			sb.append(parseDigits(ca));
+		}
+		return Double.parseDouble(sb.toString());
+	}
+
+	static String parseInt(CharacterArray ca) {
+		char c = ca.first();
+		if (c == '-') {
+			ca.moveOneStep();
+			return '-' + parseIntInner(ca);
+		}
+		return parseIntInner(ca);
+	}
+
+	private static String parseIntInner(CharacterArray ca) {
+		char c = ca.first();
+		if (c == '0')
+			return "0";
+		return parseDigits(ca);
+	}
+
+	static String parseDigits(CharacterArray ca) {
+		StringBuilder sb = new StringBuilder();
+		char c = ca.first();
+		while (c >= '0' && c <= '9') {
+			sb.append(c);
+			c = ca.moveOneStep();
+		}
+		if (sb.length() == 0)
+			throw new RuntimeException();
+		return sb.toString();
 	}
 }

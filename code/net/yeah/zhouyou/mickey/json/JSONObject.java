@@ -18,6 +18,7 @@ public class JSONObject {
 		if (ca.first() != '}') {
 			throw new RuntimeException();
 		}
+		ca.moveOneStep();
 	}
 
 	@SuppressWarnings("unchecked")
