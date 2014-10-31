@@ -10,7 +10,7 @@ public class JSONUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T parseJson(String json) {
-		CharacterArray ca = new CharacterArray(json);
+		CharacterArray ca = new CharacterArray(json.trim());
 		if (ca.length() > 1) {
 			char c = ca.first();
 			Object o = null;
@@ -19,7 +19,7 @@ public class JSONUtils {
 			} else if (c == '[') {
 				o = new JSONArray(ca);
 			}
-			if (ca.isFinish())
+			if (ca.length() == 0)
 				return (T) o;
 		}
 		throw new RuntimeException();
@@ -35,21 +35,18 @@ public class JSONUtils {
 		}
 	}
 
-	static void parsePair(CharacterArray ca, Map<String, Object> fields) {
-		ca.moveUntilNotBlank();
+	private static void parsePair(CharacterArray ca, Map<String, Object> fields) {
 		String fieldName = parseString(ca);
 		ca.moveUntilNotBlank();
 		char c = ca.first();
 		if (c != ':')
 			throw new RuntimeException();
 		ca.moveOneStep();
-		ca.moveUntilNotBlank();
 		Object value = parseValue(ca);
 		fields.put(fieldName, value);
 	}
 
 	static void parseElements(CharacterArray ca, List<Object> els) {
-		ca.moveUntilNotBlank();
 		els.add(parseValue(ca));
 		ca.moveUntilNotBlank();
 		if (ca.first() == ',') {
@@ -92,52 +89,35 @@ public class JSONUtils {
 			return new JSONArray(ca);
 		case 't': {
 			ca.moveOneStep();
-			char c0 = ca.first();
-			ca.moveOneStep();
-			char c1 = ca.first();
-			ca.moveOneStep();
-			char c2 = ca.first();
-			if (c0 == 'r' && c1 == 'u' && c2 == 'e') {
-				ca.moveOneStep();
+			char[] cs = ca.popArray(3);
+			if (cs[0] == 'r' && cs[1] == 'u' && cs[2] == 'e') {
 				return Boolean.TRUE;
 			}
-		}
 			break;
+		}
 		case 'f': {
 			ca.moveOneStep();
-			char c0 = ca.first();
-			ca.moveOneStep();
-			char c1 = ca.first();
-			ca.moveOneStep();
-			char c2 = ca.first();
-			ca.moveOneStep();
-			char c3 = ca.first();
-			if (c0 == 'a' && c1 == 'l' && c2 == 's' && c3 == 'e') {
-				ca.moveOneStep();
+			char[] cs = ca.popArray(4);
+			if (cs[0] == 'a' && cs[1] == 'l' && cs[2] == 's' && cs[3] == 'e') {
 				return Boolean.FALSE;
 			}
-		}
 			break;
+		}
 		case 'n': {
 			ca.moveOneStep();
-			char c0 = ca.first();
-			ca.moveOneStep();
-			char c1 = ca.first();
-			ca.moveOneStep();
-			char c2 = ca.first();
-			if (c0 == 'u' && c1 == 'l' && c2 == 'l') {
-				ca.moveOneStep();
+			char[] cs = ca.popArray(3);
+			if (cs[0] == 'u' && cs[1] == 'l' && cs[2] == 'l') {
 				return null;
 			}
-		}
 			break;
+		}
 		default:
 			return parseNumber(ca);
 		}
 		throw new RuntimeException();
 	}
 
-	static char parseChar(CharacterArray ca) {
+	private static char parseChar(CharacterArray ca) {
 		char c = ca.first();
 		if (c == '\\') {
 			ca.moveOneStep();
@@ -169,15 +149,7 @@ public class JSONUtils {
 				break;
 			case 'u':
 				ca.moveOneStep();
-				char c0 = ca.first();
-				ca.moveOneStep();
-				char c1 = ca.first();
-				ca.moveOneStep();
-				char c2 = ca.first();
-				ca.moveOneStep();
-				char c3 = ca.first();
-				c = (char) Integer.parseInt(String.valueOf(new char[] { c0, c1, c2, c3 }), 16);
-				break;
+				return (char) Integer.parseInt(String.valueOf(ca.popArray(4)), 16);
 			default:
 				throw new RuntimeException();
 			}
@@ -186,7 +158,7 @@ public class JSONUtils {
 		return c;
 	}
 
-	static Number parseNumber(CharacterArray ca) {
+	private static Number parseNumber(CharacterArray ca) {
 		ca.moveUntilNotBlank();
 		StringBuilder sb = new StringBuilder();
 		sb.append(parseInt(ca));
@@ -208,7 +180,7 @@ public class JSONUtils {
 		return Double.parseDouble(sb.toString());
 	}
 
-	static String parseInt(CharacterArray ca) {
+	private static String parseInt(CharacterArray ca) {
 		char c = ca.first();
 		if (c == '-') {
 			ca.moveOneStep();
@@ -226,7 +198,7 @@ public class JSONUtils {
 		return parseDigits(ca);
 	}
 
-	static String parseDigits(CharacterArray ca) {
+	private static String parseDigits(CharacterArray ca) {
 		StringBuilder sb = new StringBuilder();
 		char c = ca.first();
 		while (c >= '0' && c <= '9') {

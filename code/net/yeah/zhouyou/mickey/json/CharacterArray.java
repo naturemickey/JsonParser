@@ -1,5 +1,7 @@
 package net.yeah.zhouyou.mickey.json;
 
+import static java.lang.Character.isWhitespace;
+
 public class CharacterArray {
 
 	private char[] charArray;
@@ -17,22 +19,22 @@ public class CharacterArray {
 		return charArray.length - idx;
 	}
 
-	public boolean isFinish() {
-		return idx == charArray.length;
-	}
-
 	public void moveOneStep() {
 		++idx;
 	}
 
 	public void moveUntilNotBlank() {
-		do {
-			if (!isBlank(charArray[idx]))
-				return;
-		} while (++idx < charArray.length);
+		if (!isWhitespace(charArray[idx]))
+			return;
+		while (++idx < charArray.length && isWhitespace(charArray[idx]))
+			;
 	}
 
-	private static boolean isBlank(char c) {
-		return c == ' ' || c == '\n' || c == '\r' || c == '\t';
+	public char[] popArray(int len) {
+		char[] res = new char[len];
+		for (int i = 0; i < len; ++i, ++idx) {
+			res[i] = charArray[idx];
+		}
+		return res;
 	}
 }
