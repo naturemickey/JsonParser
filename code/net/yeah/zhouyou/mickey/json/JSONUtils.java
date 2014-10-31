@@ -137,11 +137,6 @@ public class JSONUtils {
 		throw new RuntimeException();
 	}
 
-	static boolean isControlCharacter(char c) {
-		// TODO 不知道什么是 control character
-		return false;
-	}
-
 	static char parseChar(CharacterArray ca) {
 		char c = ca.first();
 		if (c == '\\') {
@@ -186,8 +181,6 @@ public class JSONUtils {
 			default:
 				throw new RuntimeException();
 			}
-		} else if (isControlCharacter(c)) {
-			throw new RuntimeException();
 		}
 		ca.moveOneStep();
 		return c;
