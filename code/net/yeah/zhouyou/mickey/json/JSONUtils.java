@@ -219,8 +219,10 @@ public class JSONUtils {
 
 	private static String parseIntInner(CharacterArray ca) {
 		char c = ca.first();
-		if (c == '0')
+		if (c == '0') {
+			ca.moveOneStep();
 			return "0";
+		}
 		return parseDigits(ca);
 	}
 
