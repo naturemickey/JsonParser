@@ -191,7 +191,7 @@ public class JSONUtils {
 
 	private static String parseIntInner(CharacterArray ca) {
 		char c = ca.first();
-		if (c == '0') {
+		if (c == '0') { // 按json的规范一个整数1，不能写成01
 			ca.moveOneStep();
 			return "0";
 		}
