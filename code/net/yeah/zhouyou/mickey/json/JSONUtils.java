@@ -5,9 +5,6 @@ import java.util.Map;
 
 public class JSONUtils {
 
-	/**
-	 * 返回一个JSONObject或JSONArray类型的对象。
-	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T parseJson(String json) {
 		CharacterArray ca = new CharacterArray(json.trim());

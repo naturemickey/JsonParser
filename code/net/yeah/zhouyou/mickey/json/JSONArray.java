@@ -10,8 +10,7 @@ public class JSONArray {
 	public JSONArray(CharacterArray ca) {
 		ca.moveOneStep();
 		ca.moveUntilNotBlank();
-		char c = ca.first();
-		if (c != ']') {
+		if (ca.first() != ']') {
 			JSONUtils.parseElements(ca, values);
 		}
 		ca.moveUntilNotBlank();

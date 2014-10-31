@@ -10,8 +10,7 @@ public class JSONObject {
 	public JSONObject(CharacterArray ca) {
 		ca.moveOneStep();
 		ca.moveUntilNotBlank();
-		char c = ca.first();
-		if (c != '}') {
+		if (ca.first() != '}') {
 			JSONUtils.parseMembers(ca, fields);
 		}
 		ca.moveUntilNotBlank();

@@ -3,7 +3,6 @@ package net.yeah.zhouyou.mickey.json;
 import static java.lang.Character.isWhitespace;
 
 public class CharacterArray {
-
 	private char[] charArray;
 	private int idx = 0;
 
